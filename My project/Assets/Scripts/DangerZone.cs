@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DetectarSalidaZona : MonoBehaviour
+public class DangerZone : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {

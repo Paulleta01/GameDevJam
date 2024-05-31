@@ -7,33 +7,26 @@ public class Earthquake : MonoBehaviour
     public float magnitude = 0.1f; // Magnitud del terremoto
 
     private Vector3 originalPosition;
-    public float elapsed = 0.0f;
-    public bool isShaking = false;
 
     void Start()
     {
         originalPosition = transform.position;
     }
 
-    void Update()
+    public void StartEarthquakeRoutine()
     {
-        if (Input.GetKeyDown(KeyCode.T)) // Presionar 'T' para iniciar el terremoto
-        {
-            StartCoroutine(StartEarthquake());
-        }
+        StartCoroutine(StartEarthquake());
     }
 
     IEnumerator StartEarthquake()
     {
-        isShaking = true;
-        elapsed = 0.0f;
-
+        float elapsed = 0.0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
 
             float x = Random.Range(-1f, 1f) * magnitude;
-            float y = Random.Range(1f, -1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
             float z = Random.Range(-1f, 1f) * magnitude;
 
             transform.position = new Vector3(originalPosition.x + x, originalPosition.y + y, originalPosition.z + z);
@@ -42,6 +35,5 @@ public class Earthquake : MonoBehaviour
         }
 
         transform.position = originalPosition;
-        isShaking = false;
     }
 }
