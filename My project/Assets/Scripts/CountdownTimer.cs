@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using TMPro; // Importa el namespace de TextMesh Pro
 
@@ -7,9 +6,14 @@ public class CountdownTimer : MonoBehaviour
 {
     public float countdownTime = 10.0f; // Tiempo de cuenta regresiva
     public TextMeshProUGUI countdownText; // Referencia al componente de texto de TextMesh Pro
+    public TextMeshProUGUI levelText; // Referencia al texto del nivel
     public GameObject ground;
     public JengaInteraction jengaInteraction; // Referencia al script JengaInteraction
-    public GameOverManager gameOverManager; // Referencia al script GameOverManager
+    public Earthquake earthquake; // Referencia al script Earthquake
+    public GameObject biscuitPrefab; // Prefab del objeto que debe aparecer en el nivel 2
+    public GameObject gameOverScreen; // Pantalla de Game Over
+
+    private int currentLevel = 1; // Nivel actual
 
     void Start()
     {
@@ -31,37 +35,122 @@ public class CountdownTimer : MonoBehaviour
             return;
         }
 
-        if (gameOverManager == null)
+        if (earthquake == null)
         {
-            Debug.LogError("GameOverManager no está asignado en el inspector.");
+            Debug.LogError("Earthquake no está asignado en el inspector.");
             return;
         }
 
+        if (levelText == null)
+        {
+            Debug.LogError("LevelText no está asignado en el inspector.");
+            return;
+        }
+
+        if (biscuitPrefab == null)
+        {
+            Debug.LogError("BiscuitPrefab no está asignado en el inspector.");
+            return;
+        }
+
+        if (gameOverScreen == null)
+        {
+            Debug.LogError("GameOverScreen no está asignado en el inspector.");
+            return;
+        }
+
+        UpdateLevelText();
         StartCoroutine(StartCountdown());
     }
 
     IEnumerator StartCountdown()
     {
-        float remainingTime = countdownTime;
-
-        while (remainingTime > 0)
+        while (true)
         {
-            countdownText.text = "Earthquake in: " + remainingTime.ToString("F1") + " seconds";
-            yield return new WaitForSeconds(0.1f);
-            remainingTime -= 0.1f;
+            float remainingTime = countdownTime;
+
+            while (remainingTime > 0)
+            {
+                countdownText.text = "Earthquake in: " + remainingTime.ToString("F1") + " seconds";
+                yield return new WaitForSeconds(0.1f);
+                remainingTime -= 0.1f;
+            }
+
+            ground.SetActive(false);
+
+            // Desactivar la interacción con los objetos/Bloques
+            jengaInteraction.enabled = false;
+
+            countdownText.text = "<color=#FFE587>Earthquake!</color>";
+            yield return StartCoroutine(earthquake.StartEarthquakeRoutine());
+
+            countdownText.text = "<color=#FFE587>Get ready for the next round!</color>";
+            yield return new WaitForSeconds(3.0f);
+
+            // Preparar el siguiente nivel
+            PrepareNextLevel();
+        }
+    }
+
+    private void PrepareNextLevel()
+    {
+        Debug.Log("Preparando el siguiente nivel...");
+
+        // Incrementar la magnitud del terremoto para el siguiente nivel, pero no exceder 0.4
+        if (earthquake.magnitude < 0.4f)
+        {
+            earthquake.magnitude += 0.1f;
+            if (earthquake.magnitude > 0.4f)
+            {
+                earthquake.magnitude = 0.4f;
+            }
         }
 
-        ground.SetActive(false);
+        // Reiniciar la posición del suelo y activarlo
+        ground.SetActive(true);
 
-        // Desactivar la interacción con los objetos/Bloques
-        jengaInteraction.enabled = false;
+        // Reactivar la interacción con los objetos/Bloques
+        jengaInteraction.enabled = true;
 
-        countdownText.text = "<color=#FFE587>Earthquake!</color>";
-        FindObjectOfType<Earthquake>().StartEarthquakeRoutine();
+        // Reiniciar la posición de los bloques
+        GameObject[] blocks = GameObject.FindGameObjectsWithTag("Block");
+        Debug.Log("Número de bloques encontrados: " + blocks.Length);
+        foreach (GameObject block in blocks)
+        {
+            Block blockComponent = block.GetComponent<Block>();
+            if (blockComponent != null)
+            {
+                block.transform.position = blockComponent.initialPosition;
+                Debug.Log("Posición del bloque reiniciada: " + block.name);
+            }
+            else
+            {
+                Debug.LogError("El bloque no tiene el componente Block: " + block.name);
+            }
+        }
 
-        yield return new WaitForSeconds(3.0f);
+        // Incrementar el nivel
+        currentLevel++;
+        UpdateLevelText();
 
-        // Reiniciar el nivel después del terremoto
-        gameOverManager.ShowGameOver();
+        // Mostrar el objeto Biscuit (1) a partir del nivel 2
+        if (currentLevel == 2)
+        {
+            Vector3 biscuitPosition = new Vector3(0, 1, 0); // Cambia estas coordenadas según sea necesario
+            Instantiate(biscuitPrefab, biscuitPosition, Quaternion.identity);
+            Debug.Log("Biscuit (1) instanciado en el nivel 2.");
+        }
+
+        // Ocultar el texto del contador y del nivel
+        countdownText.gameObject.SetActive(false);
+        levelText.gameObject.SetActive(false);
+
+        // Mostrar la pantalla de Game Over
+        gameOverScreen.SetActive(true);
+    }
+
+    private void UpdateLevelText()
+    {
+        levelText.text = "Level: " + currentLevel;
     }
 }

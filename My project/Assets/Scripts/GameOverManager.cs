@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI; // Asegúrate de agregar esta directiva para trabajar con la UI
 using System.Collections;
 
 public class GameOverManager : MonoBehaviour

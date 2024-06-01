@@ -6,6 +6,7 @@ public class JengaInteraction : MonoBehaviour
     private GameObject selectedBlock;
     private Vector3 offset;
     private float zCoord;
+    private bool interactionEnabled = true; // Agregar una variable para controlar la interacción
 
     void Start()
     {
@@ -14,30 +15,33 @@ public class JengaInteraction : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (interactionEnabled) // Verificar si la interacción está habilitada
         {
-            RaycastHit hit;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit))
+            if (Input.GetMouseButtonDown(0))
             {
-                if (hit.transform.CompareTag("Block"))
+                RaycastHit hit;
+                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out hit))
                 {
-                    selectedBlock = hit.transform.gameObject;
-                    zCoord = cam.WorldToScreenPoint(selectedBlock.transform.position).z;
-                    offset = selectedBlock.transform.position - GetMouseWorldPos();
+                    if (hit.transform.CompareTag("Block"))
+                    {
+                        selectedBlock = hit.transform.gameObject;
+                        zCoord = cam.WorldToScreenPoint(selectedBlock.transform.position).z;
+                        offset = selectedBlock.transform.position - GetMouseWorldPos();
+                    }
                 }
             }
-        }
 
-        // Añadir una condición para verificar si el cubo está siendo arrastrado
-        if (Input.GetMouseButton(0) && selectedBlock != null && !Input.GetMouseButtonDown(0))
-        {
-            selectedBlock.transform.position = GetMouseWorldPos() + offset;
-        }
+            // Añadir una condición para verificar si el cubo está siendo arrastrado
+            if (Input.GetMouseButton(0) && selectedBlock != null && !Input.GetMouseButtonDown(0))
+            {
+                selectedBlock.transform.position = GetMouseWorldPos() + offset;
+            }
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            selectedBlock = null;
+            if (Input.GetMouseButtonUp(0))
+            {
+                selectedBlock = null;
+            }
         }
     }
 
@@ -46,5 +50,11 @@ public class JengaInteraction : MonoBehaviour
         Vector3 mousePoint = Input.mousePosition;
         mousePoint.z = zCoord;
         return cam.ScreenToWorldPoint(mousePoint);
+    }
+
+    // Método para habilitar o deshabilitar la interacción
+    public void SetInteractionEnabled(bool enabled)
+    {
+        interactionEnabled = enabled;
     }
 }

@@ -5,21 +5,23 @@ public class Earthquake : MonoBehaviour
 {
     public float duration = 2.0f; // Duración del terremoto
     public float magnitude = 0.1f; // Magnitud del terremoto
+    public AudioSource earthquakeSound; // Referencia al componente AudioSource
 
     private Vector3 originalPosition;
 
     void Start()
     {
         originalPosition = transform.position;
+        earthquakeSound = GetComponent<AudioSource>(); // Obtener el componente AudioSource
     }
 
-    public void StartEarthquakeRoutine()
+    public IEnumerator StartEarthquakeRoutine()
     {
-        StartCoroutine(StartEarthquake());
-    }
+        if (earthquakeSound != null) // Verificar si el AudioSource está asignado
+        {
+            earthquakeSound.Play(); // Reproducir el sonido al inicio del terremoto
+        }
 
-    IEnumerator StartEarthquake()
-    {
         float elapsed = 0.0f;
         while (elapsed < duration)
         {
@@ -35,5 +37,10 @@ public class Earthquake : MonoBehaviour
         }
 
         transform.position = originalPosition;
+
+        if (earthquakeSound != null) // Verificar si el AudioSource está asignado
+        {
+            earthquakeSound.Stop(); // Detener el sonido al final del terremoto
+        }
     }
 }
