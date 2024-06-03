@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using UnityEngine.UI; // Importa el namespace para UI
 
 public class CountdownTimer : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class CountdownTimer : MonoBehaviour
     public Earthquake earthquake; // Referencia al script Earthquake
     public GameObject biscuitPrefab; // Prefab del objeto que debe aparecer en el nivel 2
     public GameObject gameOverScreen; // Pantalla de Game Over
+    public Image imageToHide; // Referencia a la imagen que se debe ocultar
 
     private int currentLevel = 1; // Nivel actual
     private bool isGameOver = false; // Indicador de estado de juego terminado
@@ -57,6 +59,12 @@ public class CountdownTimer : MonoBehaviour
         if (gameOverScreen == null)
         {
             Debug.LogError("GameOverScreen no está asignado en el inspector.");
+            return;
+        }
+
+        if (imageToHide == null)
+        {
+            Debug.LogError("ImageToHide no está asignado en el inspector.");
             return;
         }
 
@@ -156,6 +164,7 @@ public class CountdownTimer : MonoBehaviour
         isGameOver = true;
         countdownText.gameObject.SetActive(false);
         levelText.gameObject.SetActive(false);
+        imageToHide.gameObject.SetActive(false); // Ocultar la imagen
         gameOverScreen.SetActive(true);
         Time.timeScale = 0;
     }
