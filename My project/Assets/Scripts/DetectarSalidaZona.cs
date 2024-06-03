@@ -3,6 +3,7 @@ using UnityEngine;
 public class DetectarSalidaZona : MonoBehaviour
 {
     private GameOverManager gameOverManager;
+    private CountdownTimer countdownTimer;
 
     private void Start()
     {
@@ -11,6 +12,13 @@ public class DetectarSalidaZona : MonoBehaviour
         if (gameOverManager == null)
         {
             Debug.LogError("GameOverManager no está asignado en la escena.");
+        }
+
+        // Buscar el CountdownTimer en la escena
+        countdownTimer = FindObjectOfType<CountdownTimer>();
+        if (countdownTimer == null)
+        {
+            Debug.LogError("CountdownTimer no está asignado en la escena.");
         }
     }
 
@@ -34,6 +42,15 @@ public class DetectarSalidaZona : MonoBehaviour
         else
         {
             Debug.LogError("No se encontró el GameOverManager.");
+        }
+
+        if (countdownTimer != null)
+        {
+            countdownTimer.GameOver();
+        }
+        else
+        {
+            Debug.LogError("No se encontró el CountdownTimer.");
         }
     }
 }

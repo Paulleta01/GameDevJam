@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using TMPro; // Importa el namespace de TextMesh Pro
+using TMPro;
 
 public class CountdownTimer : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class CountdownTimer : MonoBehaviour
     public GameObject gameOverScreen; // Pantalla de Game Over
 
     private int currentLevel = 1; // Nivel actual
+    private bool isGameOver = false; // Indicador de estado de juego terminado
 
     void Start()
     {
@@ -65,16 +66,18 @@ public class CountdownTimer : MonoBehaviour
 
     IEnumerator StartCountdown()
     {
-        while (true)
+        while (!isGameOver)
         {
             float remainingTime = countdownTime;
 
-            while (remainingTime > 0)
+            while (remainingTime > 0 && !isGameOver)
             {
                 countdownText.text = "Earthquake in: " + remainingTime.ToString("F1") + " seconds";
                 yield return new WaitForSeconds(0.1f);
                 remainingTime -= 0.1f;
             }
+
+            if (isGameOver) yield break;
 
             ground.SetActive(false);
 
@@ -134,23 +137,26 @@ public class CountdownTimer : MonoBehaviour
         UpdateLevelText();
 
         // Mostrar el objeto Biscuit (1) a partir del nivel 2
-        if (currentLevel == 2)
+        if (currentLevel >= 2)
         {
-            Vector3 biscuitPosition = new Vector3(0, 1, 0); // Cambia estas coordenadas según sea necesario
-            Instantiate(biscuitPrefab, biscuitPosition, Quaternion.identity);
-            Debug.Log("Biscuit (1) instanciado en el nivel 2.");
+            Vector3 biscuitPosition = new Vector3(-5.927f, -0.2422f, -2f); // Coordenadas específicas
+            GameObject biscuitInstance = Instantiate(biscuitPrefab, biscuitPosition, Quaternion.identity);
+            biscuitInstance.SetActive(true); // Asegúrate de que el objeto esté activo
+            Debug.Log("Biscuit (1) instanciado en el nivel " + currentLevel + ".");
         }
-
-        // Ocultar el texto del contador y del nivel
-        countdownText.gameObject.SetActive(false);
-        levelText.gameObject.SetActive(false);
-
-        // Mostrar la pantalla de Game Over
-        gameOverScreen.SetActive(true);
     }
 
     private void UpdateLevelText()
     {
         levelText.text = "Level: " + currentLevel;
+    }
+
+    public void GameOver()
+    {
+        isGameOver = true;
+        countdownText.gameObject.SetActive(false);
+        levelText.gameObject.SetActive(false);
+        gameOverScreen.SetActive(true);
+        Time.timeScale = 0;
     }
 }

@@ -27,8 +27,9 @@ public class Earthquake : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
-            float x = Random.Range(-1f, 1f) * magnitude;
-            float y = Random.Range(-1f, 1f) * magnitude;
+            // Ajustar los valores para que el movimiento en el eje x sea más pronunciado
+            float x = Random.Range(-1f, 1f) * magnitude * 2; // Doble de magnitud en el eje x
+            float y = Random.Range(-0.5f, 0.5f) * magnitude; // Mitad de magnitud en el eje y
             float z = Random.Range(-1f, 1f) * magnitude;
 
             transform.position = new Vector3(originalPosition.x + x, originalPosition.y + y, originalPosition.z + z);
